@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "title": "لابتوب احترافي X1",
+    "description": "جهاز لابتوب قوي مصمم للأعمال والمطورين، مع معالج حديث وذاكرة وصول عشوائي كبيرة وشاشة 4K.",
+    "price": 1250.00,
+    "category": "أجهزة لابتوب",
+    "image": "https://via.placeholder.com/500x500.png?text=Laptop+Pro"
+  },
+  {
+    "id": 2,
+    "title": "هاتف ذكي فلاجشيب",
+    "description": "هاتف ذكي بكاميرا مذهلة وشاشة عرض عالية الدقة، يوفر تجربة استخدام سلسة وأداء لا مثيل له.",
+    "price": 980.50,
+    "category": "هواتف ذكية",
+    "image": "https://via.placeholder.com/500x500.png?text=Smartphone"
+  },
+  {
+    "id": 3,
+    "title": "سماعات ProSound",
+    "description": "سماعات أذن لاسلكية مع تقنية إلغاء الضوضاء النشطة، مثالية للاستماع والمكالمات بجودة صوت استوديو.",
+    "price": 150.75,
+    "category": "ملحقات",
+    "image": "https://via.placeholder.com/500x500.png?text=Wireless+Earbuds"
+  },
+  {
+    "id": 4,
+    "title": "ساعة ذكية WatchFit 5",
+    "description": "ساعة ذكية لتتبع اللياقة البدنية، مع ميزات متقدمة لمراقبة الصحة وإشعارات الهاتف وشاشة AMOLED.",
+    "price": 220.00,
+    "category": "أجهزة قابلة للارتداء",
+    "image": "https://via.placeholder.com/500x500.png?text=Smartwatch"
+  }
+]
