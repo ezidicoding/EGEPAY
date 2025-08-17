@@ -1,1 +1,502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>Tech Nova | متجر الإلكترونيات المتقدم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-light: #007bff;
+            --secondary-color: #1a1a1a;
+            --background-color: #f4f7f9;
+            --card-bg-color: #FFFFFF;
+            --text-color: #212529;
+            --success-color: #20c997;
+            --danger-color: #e63946;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            --border-radius: 12px;
+        }
 
+        /* --- Base & Reset --- */
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+        .container { width: 90%; max-width: 1280px; margin: 0 auto; }
+        button { font-family: 'Cairo', sans-serif; cursor: pointer; }
+
+        /* --- Header --- */
+        header {
+            background-color: var(--card-bg-color);
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 700; text-decoration: none; color: var(--primary-color); }
+        .cart-icon { position: relative; cursor: pointer; color: var(--secondary-color); font-size: 1.6rem; }
+        .cart-badge {
+            position: absolute; top: -10px; right: -14px;
+            background: var(--danger-color); color: white;
+            border-radius: 50%; padding: 0.1em 0.4em;
+            font-size: 0.8rem; font-weight: 700; border: 2px solid var(--card-bg-color);
+        }
+
+        /* --- Main Content & Products Grid --- */
+        main { padding: 50px 0; }
+        main h1 { text-align: center; font-size: 2.8rem; margin-bottom: 50px; color: var(--secondary-color); }
+        .products-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 25px; }
+
+        /* --- Product Card --- */
+        .product-card {
+            background: var(--card-bg-color); border-radius: var(--border-radius);
+            box-shadow: var(--shadow); overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; display: flex; flex-direction: column;
+        } 
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); }
+        .product-card-image { width: 100%; height: 280px; object-fit: cover; }
+        .product-card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-card-body h3 { margin: 0 0 10px; font-size: 1.3rem; }
+        .product-card-body .price { font-size: 1.6rem; font-weight: 700; color: var(--primary-color); margin-top: auto; }
+
+        /* --- Loading Skeleton --- */
+        .skeleton { animation: skeleton-loading 1.2s linear infinite alternate; }
+        .skeleton-img { width: 100%; height: 280px; background-color: #e0e0e0; }
+        .skeleton-text { width: 80%; height: 24px; margin: 10px 0; background-color: #e0e0e0; border-radius: 4px; }
+        @keyframes skeleton-loading { 0% { background-color: #e0e0e0; } 100% { background-color: #f0f0f0; } }
+
+        /* --- Overlay & Modals --- */
+        .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; backdrop-filter: blur(5px); }
+        .overlay.visible { opacity: 1; visibility: visible; }
+        
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); z-index: 2001; opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .modal.visible { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        .modal-close-btn { position: absolute; top: 15px; left: 15px; font-size: 2rem; color: #aaa; cursor: pointer; border: none; background: none; z-index: 10; }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translate(-50%, -45%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+        .modal.visible { animation: fadeInUp 0.4s forwards; }
+
+        /* --- Product Details Modal --- */
+        #product-modal .modal-content {
+            display: flex; flex-direction: column; background: var(--card-bg-color);
+            border-radius: var(--border-radius); padding: 30px;
+            max-width: 90vw; width: 850px; max-height: 90vh; overflow-y: auto;
+        }
+        #product-modal .details-layout { display: flex; flex-direction: column; gap: 30px; }
+        #product-modal img { width: 100%; max-width: 350px; height: auto; object-fit: cover; border-radius: var(--border-radius); align-self: center; }
+        #product-modal .info h1 { margin-top: 0; font-size: 2.2rem; }
+        #product-modal .info .price { font-size: 2rem; color: var(--primary-color); margin: 20px 0; font-weight: 700; }
+        #product-modal .quantity-selector { display: flex; align-items: center; gap: 10px; margin: 20px 0; }
+        #product-modal .quantity-selector button { width: 45px; height: 45px; border: 1px solid #ddd; background: white; font-size: 1.8rem; cursor: pointer; border-radius: 50%; }
+        #product-modal .qty-input { width: 60px; height: 45px; text-align: center; font-size: 1.4rem; border: none; font-weight: 600; }
+        .action-btn {
+            width: 100%; padding: 18px; font-size: 1.2rem; font-weight: 600;
+            background: linear-gradient(45deg, var(--primary-light), var(--primary-color));
+            color: white; border: none; border-radius: var(--border-radius); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3); }
+
+        /* --- Off-canvas Cart Panel --- */
+        .offcanvas-panel {
+            position: fixed; top: 0; right: 0; width: 100%; max-width: 420px;
+            height: 100%; background: var(--card-bg-color); z-index: 2001;
+            transform: translateX(100%); transition: transform 0.4s ease-in-out;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+        }
+        .offcanvas-panel.visible { transform: translateX(0); }
+        .offcanvas-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .offcanvas-body { padding: 20px; flex-grow: 1; overflow-y: auto; }
+        .cart-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
+        .cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+        .cart-item-details { flex-grow: 1; }
+        .cart-item-details .remove-item-btn { font-size: 0.9rem; color: var(--danger-color); cursor: pointer; background: none; border: none; padding: 5px; }
+        .offcanvas-footer { padding: 20px; border-top: 1px solid #eee; background: #f9f9f9; }
+        .summary-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.3rem; margin-bottom: 15px; }
+
+        /* --- Checkout & Payment Modals --- */
+        .form-modal-content { padding: 30px; width: 90vw; max-width: 500px; background: white; border-radius: var(--border-radius); text-align: center; }
+        .form-modal-content h2 { margin-top: 0; }
+        .form-modal-content form input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+        #payment-modal .payment-btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 8px; font-size: 1.1rem; color: white; cursor: pointer; font-weight: 600; }
+        
+        /* --- Toast Notification --- */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background-color: var(--secondary-color); color: white;
+            padding: 16px 30px; border-radius: var(--border-radius);
+            z-index: 3000; opacity: 0; transform: translate(-50%, 20px);
+            transition: opacity 0.4s ease, transform 0.4s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+        
+        /* --- Responsive Design (Media Queries) --- */
+        @media (min-width: 600px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 900px) {
+            .products-grid { grid-template-columns: repeat(3, 1fr); }
+            #product-modal .details-layout { flex-direction: row; }
+            #product-modal img { align-self: flex-start; }
+        }
+        @media (min-width: 1200px) {
+            .products-grid { grid-template-columns: repeat(4, 1fr); }
+        } 
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">منتجات </a>
+                <div id="cart-icon" class="cart-icon" role="button" aria-label="Open Cart">
+                    🛒
+                    <span id="cart-badge" class="cart-badge">0</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1>أحدث المنتجات التقنية</h1>
+            <div id="products-grid" class="products-grid">
+                <!-- Skeletons will be injected here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- === POP-UP ELEMENTS === -->
+    <div id="page-overlay" class="overlay"></div>
+    <div id="product-modal" class="modal"></div>
+    <div id="cart-panel" class="offcanvas-panel"></div>
+    <div id="checkout-modal" class="modal"></div>
+    <div id="payment-modal" class="modal"></div>
+    <div id="toast-notification" class="toast"></div>
+ 
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIG & STATE ---
+        const config = {
+            TELEGRAM_BOT_TOKEN: '6618648466:AAFGGTIx055y0eCRvq_z3ABqchHfLsqD0M4',
+            TELEGRAM_CHAT_ID: '6431271423',
+            PRODUCTS_JSON_URL: 'posts.json'
+        };
+        let state = {
+            allProducts: [],
+            isModalOpen: false
+        };
+
+        // --- DOM ELEMENT SELECTORS ---
+        const DOMElements = {
+            productsGrid: document.getElementById('products-grid'),
+            cartBadge: document.getElementById('cart-badge'),
+            overlay: document.getElementById('page-overlay'),
+            productModal: document.getElementById('product-modal'),
+            cartPanel: document.getElementById('cart-panel'),
+            checkoutModal: document.getElementById('checkout-modal'),
+            paymentModal: document.getElementById('payment-modal'),
+            toast: document.getElementById('toast-notification'),
+            cartIcon: document.getElementById('cart-icon')
+        };
+        
+        // --- RENDER FUNCTIONS (UI) ---
+        
+        const renderSkeletons = (count = 8) => {
+            let skeletonsHTML = '';
+            for (let i = 0; i < count; i++) {
+                skeletonsHTML += `
+                    <div class="product-card">
+                        <div class="skeleton skeleton-img"></div>
+                        <div class="product-card-body">
+                            <div class="skeleton skeleton-text"></div>
+                            <div class="skeleton skeleton-text" style="width: 60%;"></div>
+                        </div>
+                    </div>`;
+            }
+            DOMElements.productsGrid.innerHTML = skeletonsHTML;
+        };
+
+        const renderProducts = () => {
+            DOMElements.productsGrid.innerHTML = '';
+            state.allProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.title}" class="product-card-image">
+                    <div class="product-card-body">
+                        <h3>${product.title}</h3>
+                        <p class="price">${product.price.toFixed(2)} &euro;</p>
+                    </div>`;
+                card.addEventListener('click', () => renderProductDetails(product.id));
+                DOMElements.productsGrid.appendChild(card);
+            });
+        };
+
+        const renderProductDetails = (productId) => {
+            const product = state.allProducts.find(p => p.id === productId);
+            DOMElements.productModal.innerHTML = `
+                <div class="modal-content">
+                    <button class="modal-close-btn">&times;</button>
+                    <div class="details-layout">
+                        <img src="${product.image}" alt="${product.title}">
+                        <div class="info">
+                            <h1>${product.title}</h1>
+                            <p>${product.description}</p>
+                            <p class="price">${product.price.toFixed(2)} &euro;</p>
+                            <div class="quantity-selector">
+                                <button class="qty-btn" data-action="decrease">-</button>
+                                <input type="number" class="qty-input" value="1" min="1" readonly>
+                                <button class="qty-btn" data-action="increase">+</button>
+                            </div>
+                            <button class="action-btn add-to-cart-btn">إضافة إلى السلة</button>
+                        </div>
+                    </div>
+                </div>`;
+            openModal(DOMElements.productModal);
+        };
+
+        const renderCart = () => {
+            const cart = getCart();
+            let subtotal = 0;
+            let cartItemsHTML = cart.length === 0 ? '<p style="text-align: center;">سلتك فارغة حالياً.</p>' : '';
+
+            cart.forEach(item => {
+                const product = state.allProducts.find(p => p.id === item.id);
+                if (!product) return;
+                subtotal += product.price * item.quantity;
+                cartItemsHTML += `
+                    <div class="cart-item">
+                        <img src="${product.image}" alt="${product.title}">
+                        <div class="cart-item-details">
+                            <h4>${product.title}</h4>
+                            <p>${item.quantity} &times; ${product.price.toFixed(2)} &euro;</p>
+                            <button class="remove-item-btn" data-id="${product.id}">إزالة</button>
+                        </div>
+                    </div>`;
+            });
+
+            DOMElements.cartPanel.innerHTML = `
+                <div class="offcanvas-header">
+                    <h2>سلة التسوق</h2>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+                <div class="offcanvas-body">${cartItemsHTML}</div>
+                <div class="offcanvas-footer">
+                    <div class="summary-total">
+                        <span>المجموع:</span>
+                        <span>${subtotal.toFixed(2)} &euro;</span>
+                    </div>
+                    <button class="action-btn checkout-btn" ${cart.length === 0 ? 'disabled' : ''}>إتمام الشراء</button>
+                </div>`;
+            openModal(DOMElements.cartPanel);
+        };
+
+        const renderCheckoutModal = () => {
+            DOMElements.checkoutModal.innerHTML = `
+                <div class="form-modal-content">
+                    <button class="modal-close-btn">&times;</button>
+                    <h2>إكمال معلومات الشحن</h2>
+                    <form id="userInfoForm">
+                        <input type="text" id="fullName" placeholder="الاسم الكامل" required>
+                        <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+                        <input type="tel" id="phone" placeholder="رقم الهاتف" required>
+                        <input type="text" id="address" placeholder="عنوان المنزل" required>
+                        <button type="submit" class="action-btn">إرسال الطلب والمتابعة للدفع</button>
+                    </form>
+                </div>`;
+            openModal(DOMElements.checkoutModal);
+        };
+
+        const renderPaymentModal = () => {
+             DOMElements.paymentModal.innerHTML = `
+                <div class="form-modal-content">
+                    <button class="modal-close-btn">&times;</button>
+                    <h2>اختر طريقة الدفع</h2>
+                    <p>سيتم إرسال تفاصيل الدفع إلى معلومات الاتصال التي قدمتها.</p>
+                    <button class="payment-btn" style="background-color: #0070ba;">الدفع عبر PayPal</button>
+                    <button class="payment-btn" style="background-color: #3498db;">الدفع ببطاقة الائتمان</button>
+                </div>`;
+            openModal(DOMElements.paymentModal);
+        }
+
+        // --- CART LOGIC ---
+        const getCart = () => JSON.parse(localStorage.getItem('cart')) || [];
+        const saveCart = (cart) => localStorage.setItem('cart', JSON.stringify(cart));
+
+        const addToCart = (productId, quantity) => {
+            let cart = getCart();
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({ id: productId, quantity });
+            }
+            saveCart(cart);
+            updateCartBadge();
+        };
+
+        const removeFromCart = (productId) => {
+            let cart = getCart().filter(item => item.id !== productId);
+            saveCart(cart);
+            updateCartBadge();
+            renderCart();
+        };
+
+        const updateCartBadge = () => {
+            const totalItems = getCart().reduce((sum, item) => sum + item.quantity, 0);
+            DOMElements.cartBadge.textContent = totalItems;
+        };
+        
+        // --- MODAL & OVERLAY CONTROL ---
+        const openModal = (modalElement) => {
+            state.isModalOpen = true;
+            DOMElements.overlay.classList.add('visible');
+            modalElement.classList.add('visible');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        };
+
+        const closeAllModals = () => {
+            state.isModalOpen = false;
+            DOMElements.overlay.classList.remove('visible');
+            document.querySelectorAll('.modal, .offcanvas-panel').forEach(m => m.classList.remove('visible'));
+            document.body.style.overflow = '';
+        };
+
+        // --- API & FORM HANDLING ---
+        const handleCheckoutSubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'جارٍ الإرسال...';
+            submitBtn.disabled = true;
+
+            const cart = getCart();
+            let message = `🔔 **طلب جديد** 🔔\n\n`;
+            message += `👤 **العميل:** ${form.fullName.value}\n`;
+            message += `📧 **البريد:** ${form.email.value}\n`;
+            message += `📞 **الهاتف:** ${form.phone.value}\n`;
+            message += `🏠 **العنوان:** ${form.address.value}\n\n--- **تفاصيل الطلب** ---\n`;
+            let total = cart.reduce((sum, item) => {
+                const product = state.allProducts.find(p => p.id === item.id);
+                message += `▪️ ${product.title} (x${item.quantity}) - ${(product.price * item.quantity).toFixed(2)} €\n`;
+                return sum + product.price * item.quantity;
+            }, 0);
+            message += `\n**💰 المجموع الكلي: ${total.toFixed(2)} €**`;
+            
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${config.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: config.TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown' })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    showToast('تم الطلب بنجاح! عليك إكمال الدفع.');
+                    saveCart([]);
+                    updateCartBadge();
+                    closeAllModals();
+                    renderPaymentModal();
+                } else throw new Error('Telegram API error');
+            } catch (error) {
+                showToast('حدث خطأ أثناء إرسال الطلب.', 'error');
+                submitBtn.textContent = 'إرسال الطلب والمتابعة للدفع';
+                submitBtn.disabled = false;
+            }
+        };
+
+        const showToast = (message, type = 'success') => {
+            DOMElements.toast.textContent = message;
+            DOMElements.toast.style.backgroundColor = type === 'success' ? 'var(--success-color)' : 'var(--danger-color)';
+            DOMElements.toast.classList.add('show');
+            setTimeout(() => DOMElements.toast.classList.remove('show'), 3500);
+        };
+
+        // --- EVENT LISTENERS ---
+        const setupEventListeners = () => {
+            DOMElements.cartIcon.addEventListener('click', renderCart);
+            DOMElements.overlay.addEventListener('click', closeAllModals);
+
+            document.addEventListener('click', e => {
+                // Modal specific actions
+                const productModalContent = DOMElements.productModal.querySelector('.modal-content');
+                if (productModalContent && productModalContent.contains(e.target)) {
+                    if (e.target.matches('.modal-close-btn')) closeAllModals();
+                    if (e.target.matches('.qty-btn')) {
+                        const input = productModalContent.querySelector('.qty-input');
+                        let value = parseInt(input.value);
+                        if (e.target.dataset.action === 'increase') value++;
+                        else if (value > 1) value--;
+                        input.value = value;
+                    }
+                    if (e.target.matches('.add-to-cart-btn')) {
+                        const product = state.allProducts.find(p => p.id === parseInt(productModalContent.querySelector('.qty-input').dataset.productId)); // A more robust way would be to store id in a data attribute
+                        addToCart(
+                            state.allProducts.find(p => DOMElements.productModal.querySelector('h1').textContent === p.title).id,
+                            parseInt(productModalContent.querySelector('.qty-input').value)
+                        );
+                        showToast('تمت الإضافة إلى السلة بنجاح!');
+                        closeAllModals();
+                    }
+                }
+
+                // Cart panel actions
+                const cartPanelContent = DOMElements.cartPanel;
+                if (cartPanelContent && cartPanelContent.contains(e.target)) {
+                    if (e.target.matches('.modal-close-btn')) closeAllModals();
+                    if (e.target.matches('.remove-item-btn')) removeFromCart(parseInt(e.target.dataset.id));
+                    if (e.target.matches('.checkout-btn')) { closeAllModals(); renderCheckoutModal(); }
+                }
+
+                // Checkout modal actions
+                if (DOMElements.checkoutModal.contains(e.target) && e.target.matches('.modal-close-btn')) closeAllModals();
+                
+                // Payment modal actions
+                if (DOMElements.paymentModal.contains(e.target)) {
+                    if (e.target.matches('.modal-close-btn')) closeAllModals();
+                    if (e.target.matches('.payment-btn')) {
+                        showToast('تم إرسال طريقة الدفع. شكراً لتسوقك معنا!');
+                        closeAllModals();
+                    }
+                }
+            });
+            
+            document.addEventListener('submit', e => {
+                if (e.target.id === 'userInfoForm') handleCheckoutSubmit(e);
+            });
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && state.isModalOpen) closeAllModals();
+            });
+        };
+        
+        // --- INITIALIZATION ---
+        const initializeApp = async () => {
+            renderSkeletons();
+            setupEventListeners();
+            updateCartBadge();
+            try {
+                const response = await fetch(config.PRODUCTS_JSON_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                state.allProducts = await response.json();
+                setTimeout(renderProducts, 800); // Simulate loading time for better skeleton effect
+            } catch (error) {
+                console.error('Failed to load products:', error);
+                DOMElements.productsGrid.innerHTML = '<p style="text-align:center;">عذراً، لم نتمكن من تحميل المنتجات.</p>';
+            }
+        };
+
+        initializeApp();
+    });
+    </script>
+</body>
+</html>
