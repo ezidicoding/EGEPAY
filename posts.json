@@ -1,11 +1,11 @@
 [
   {
     "id": 1,
-    "title": "لابتوب احترافي X1",
+    "title": "سماعة اذن جودة ممتازة",
     "description": "جهاز لابتوب قوي مصمم للأعمال والمطورين، مع معالج حديث وذاكرة وصول عشوائي كبيرة وشاشة 4K.",
     "price": 1250.00,
     "category": "أجهزة لابتوب",
-    "image": "https://via.placeholder.com/500x500.png?text=Laptop+Pro"
+    "image": "https://m.media-amazon.com/images/I/61rZMc5+EfL._AC_SL1500_.jpg"
   },
   {
     "id": 2,
